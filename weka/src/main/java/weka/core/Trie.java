@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Spliterator;
 import java.util.Vector;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -893,6 +894,12 @@ public class Trie implements Serializable, Cloneable, Collection<String>,
   public String toString() {
     return toString(m_Root);
   }
+	@Override
+	public Spliterator<String> spliterator() {
+		// TODO Auto-generated method stub
+		return null;
+     }
+
 
   /**
    * Returns the revision string.

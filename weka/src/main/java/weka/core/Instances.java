@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Spliterator;
 
 import weka.core.converters.ArffLoader.ArffReader;
 import weka.core.converters.ConverterUtils.DataSource;
@@ -2533,6 +2534,12 @@ RevisionHandler {
       System.err.println(ex.getMessage());
     }
   }
+
+	@Override
+	public Spliterator<Instance> spliterator() {
+		// TODO Auto-generated method stub
+		return null;
+     }
 
   /**
    * Returns the revision string.
