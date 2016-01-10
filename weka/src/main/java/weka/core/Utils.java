@@ -1125,6 +1125,7 @@ public final class Utils implements RevisionHandler {
    *              assignable to the desired class type, or the options supplied
    *              are not acceptable to the object
    */
+  
   protected static Object forNameNoSchemeMatch(Class classType,
     String className,
     String[] options) throws Exception {
@@ -1135,7 +1136,7 @@ public final class Utils implements RevisionHandler {
     } catch (Exception ex) {
       throw new Exception("Can't find class called: " + className);
     }
-    if (!classType.isAssignableFrom(c)) {
+    if (classType != null && !classType.isAssignableFrom(c)) {
       throw new Exception(classType.getName() + " is not assignable from "
         + className);
     }
@@ -2438,7 +2439,7 @@ public final class Utils implements RevisionHandler {
    */
   @Override
   public String getRevision() {
-    return RevisionUtils.extract("$Revision$");
+	  return RevisionUtils.extract("$Revision $");
   }
 
   /**
