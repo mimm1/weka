@@ -792,13 +792,10 @@ public class Statistics implements RevisionHandler {
 
     /* Choose expansion for better convergence. */
     y = x * (a + b - 2.0) - (a - 1.0);
-    if (y < 0.0) {
-      w = incompleteBetaFraction1(a, b, x);
-    } else {
-      w = incompleteBetaFraction2(a, b, x) / xc;
-    }
-
-    /*
+    
+    w = incompleteBetaFraction(a, b, x, y, xc);
+    
+      /*
      * Multiply w by the factor a b _ _ _ x (1-x) | (a+b) / ( a | (a) | (b) ) .
      */
 
@@ -841,174 +838,119 @@ public class Statistics implements RevisionHandler {
   /**
    * Continued fraction expansion #1 for incomplete beta integral.
    */
-  public static double incompleteBetaFraction1(double a, double b, double x) {
+  public static double incompleteBetaFraction(double a, double b, double x, double y, double xc) {
 
-    double xk, pk, pkm1, pkm2, qk, qkm1, qkm2;
-    double k1, k2, k3, k4, k5, k6, k7, k8;
-    double r, t, ans, thresh;
-    int n;
+	    double xk, pk, pkm1, pkm2, qk, qkm1, qkm2;
+	    double k1, k2, k3, k4, k5, k6, k7, k8;
+	    double r, t, ans, z, thresh;
+	    int n;
 
-    k1 = a;
-    k2 = a + b;
-    k3 = a;
-    k4 = a + 1.0;
-    k5 = 1.0;
-    k6 = b - 1.0;
-    k7 = k4;
-    k8 = a + 2.0;
+	    k1 = a;
+	    k3 = a;
+	    k4 = a + 1.0;
+	    k5 = 1.0;
+	    
+	    if (y < 0.0) 
+	    {
+	     k2 = a + b;
+	     k6 = b - 1.0;
+		 k7 = k4; 
+		 z=x;
+		 } 
+	    
+	    else 
+	      
+	    {
+	     k2 = b - 1.0;
+	     k6 = a + b;
+	     k7 = a + 1.0;
+	     z = x / (1.0 - x);
+	    }
 
-    pkm2 = 0.0;
-    qkm2 = 1.0;
-    pkm1 = 1.0;
-    qkm1 = 1.0;
-    ans = 1.0;
-    r = 1.0;
-    n = 0;
-    thresh = 3.0 * MACHEP;
-    do {
-      xk = -(x * k1 * k2) / (k3 * k4);
-      pk = pkm1 + pkm2 * xk;
-      qk = qkm1 + qkm2 * xk;
-      pkm2 = pkm1;
-      pkm1 = pk;
-      qkm2 = qkm1;
-      qkm1 = qk;
+	    k8 = a + 2.0;
 
-      xk = (x * k5 * k6) / (k7 * k8);
-      pk = pkm1 + pkm2 * xk;
-      qk = qkm1 + qkm2 * xk;
-      pkm2 = pkm1;
-      pkm1 = pk;
-      qkm2 = qkm1;
-      qkm1 = qk;
+	    pkm2 = 0.0;
+	    qkm2 = 1.0;
+	    pkm1 = 1.0;
+	    qkm1 = 1.0;
+	    ans = 1.0;
+	    r = 1.0;
+	    n = 0;
+	    thresh = 3.0 * MACHEP;
+	    do {
+	    	
+	      xk = -(z * k1 * k2) / (k3 * k4);
+	      
+	      pk = pkm1 + pkm2 * xk;
+	      qk = qkm1 + qkm2 * xk;
+	      pkm2 = pkm1;
+	      pkm1 = pk;
+	      qkm2 = qkm1;
+	      qkm1 = qk;
 
-      if (qk != 0) {
-        r = pk / qk;
-      }
-      if (r != 0) {
-        t = Math.abs((ans - r) / r);
-        ans = r;
-      } else {
-        t = 1.0;
-      }
+	      xk = (z * k5 * k6) / (k7 * k8);
+	      pk = pkm1 + pkm2 * xk;
+	      qk = qkm1 + qkm2 * xk;
+	      pkm2 = pkm1;
+	      pkm1 = pk;
+	      qkm2 = qkm1;
+	      qkm1 = qk;
 
-      if (t < thresh) {
-        return ans;
-      }
+	      if (qk != 0) {
+	        r = pk / qk;
+	      }
+	      if (r != 0) {
+	        t = Math.abs((ans - r) / r);
+	        ans = r;
+	      } else {
+	        t = 1.0;
+	      }
 
-      k1 += 1.0;
-      k2 += 1.0;
-      k3 += 2.0;
-      k4 += 2.0;
-      k5 += 1.0;
-      k6 -= 1.0;
-      k7 += 2.0;
-      k8 += 2.0;
+	      if (t < thresh) {
+	        return ans;
+	      }
 
-      if ((Math.abs(qk) + Math.abs(pk)) > big) {
-        pkm2 *= biginv;
-        pkm1 *= biginv;
-        qkm2 *= biginv;
-        qkm1 *= biginv;
-      }
-      if ((Math.abs(qk) < biginv) || (Math.abs(pk) < biginv)) {
-        pkm2 *= big;
-        pkm1 *= big;
-        qkm2 *= big;
-        qkm1 *= big;
-      }
-    } while (++n < 300);
+	      k1 += 1.0;
+	      
+	      if (y < 0.0) 
+		    { k2 += 1.0;
+	    	  k6 -= 1.0;
+			} 
+		  else 
+		    {
+		     k2 -= 1.0;
+		     k6 += 1.0;
+		    }
+	     
+	      k3 += 2.0;
+	      k4 += 2.0;
+	      k5 += 1.0;
+	    
+	      k7 += 2.0;
+	      k8 += 2.0;
 
-    return ans;
-  }
+	      if ((Math.abs(qk) + Math.abs(pk)) > big) {
+	        pkm2 *= biginv;
+	        pkm1 *= biginv;
+	        qkm2 *= biginv;
+	        qkm1 *= biginv;
+	      }
+	      if ((Math.abs(qk) < biginv) || (Math.abs(pk) < biginv)) {
+	        pkm2 *= big;
+	        pkm1 *= big;
+	        qkm2 *= big;
+	        qkm1 *= big;
+	      }
+	    } while (++n < 300);
 
-  /**
-   * Continued fraction expansion #2 for incomplete beta integral.
-   */
-  public static double incompleteBetaFraction2(double a, double b, double x) {
+	    if (y < 0.0)  
+	    	return ans; 
+	    else  
+	    	return ans/xc ;
+	  }
 
-    double xk, pk, pkm1, pkm2, qk, qkm1, qkm2;
-    double k1, k2, k3, k4, k5, k6, k7, k8;
-    double r, t, ans, z, thresh;
-    int n;
-
-    k1 = a;
-    k2 = b - 1.0;
-    k3 = a;
-    k4 = a + 1.0;
-    k5 = 1.0;
-    k6 = a + b;
-    k7 = a + 1.0;
-    ;
-    k8 = a + 2.0;
-
-    pkm2 = 0.0;
-    qkm2 = 1.0;
-    pkm1 = 1.0;
-    qkm1 = 1.0;
-    z = x / (1.0 - x);
-    ans = 1.0;
-    r = 1.0;
-    n = 0;
-    thresh = 3.0 * MACHEP;
-    do {
-      xk = -(z * k1 * k2) / (k3 * k4);
-      pk = pkm1 + pkm2 * xk;
-      qk = qkm1 + qkm2 * xk;
-      pkm2 = pkm1;
-      pkm1 = pk;
-      qkm2 = qkm1;
-      qkm1 = qk;
-
-      xk = (z * k5 * k6) / (k7 * k8);
-      pk = pkm1 + pkm2 * xk;
-      qk = qkm1 + qkm2 * xk;
-      pkm2 = pkm1;
-      pkm1 = pk;
-      qkm2 = qkm1;
-      qkm1 = qk;
-
-      if (qk != 0) {
-        r = pk / qk;
-      }
-      if (r != 0) {
-        t = Math.abs((ans - r) / r);
-        ans = r;
-      } else {
-        t = 1.0;
-      }
-
-      if (t < thresh) {
-        return ans;
-      }
-
-      k1 += 1.0;
-      k2 -= 1.0;
-      k3 += 2.0;
-      k4 += 2.0;
-      k5 += 1.0;
-      k6 += 1.0;
-      k7 += 2.0;
-      k8 += 2.0;
-
-      if ((Math.abs(qk) + Math.abs(pk)) > big) {
-        pkm2 *= biginv;
-        pkm1 *= biginv;
-        qkm2 *= biginv;
-        qkm1 *= biginv;
-      }
-      if ((Math.abs(qk) < biginv) || (Math.abs(pk) < biginv)) {
-        pkm2 *= big;
-        pkm1 *= big;
-        qkm2 *= big;
-        qkm1 *= big;
-      }
-    } while (++n < 300);
-
-    return ans;
-  }
-
-  /**
+ 
+   /**
    * Power series for incomplete beta integral. Use when b*x is small and x not
    * too close to 1.
    */
